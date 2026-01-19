@@ -6,8 +6,11 @@ import fs from 'fs';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Database file path - create data directory if it doesn't exist
-const dataDir = path.join(__dirname, '../../data');
+// Database file path - support Render disk mount or local development
+const dataDir = process.env.NODE_ENV === 'production' && fs.existsSync('/opt/render/project/src/data')
+  ? '/opt/render/project/src/data'
+  : path.join(__dirname, '../../data');
+
 if (!fs.existsSync(dataDir)) {
   fs.mkdirSync(dataDir, { recursive: true });
 }
@@ -41,6 +44,38 @@ db.run('PRAGMA journal_mode = WAL;'); // Write-Ahead Logging
 db.run('PRAGMA synchronous = NORMAL;'); // Faster than FULL, safer than OFF
 db.run('PRAGMA cache_size = 1000;'); // Cache size in pages
 db.run('PRAGMA temp_store = memory;'); // Store temp tables in memory
+
+// Auto-initialize database schema if tables don't exist
+const initSchema = () => {
+  db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='users'", (err, row) => {
+    if (err) {
+      console.error('❌ Error checking database schema:', err.message);
+      return;
+    }
+    
+    if (!row) {
+      console.log('📋 Database empty, initializing schema...');
+      const schemaPath = path.join(__dirname, '../../database/schema.sql');
+      
+      if (fs.existsSync(schemaPath)) {
+        const schema = fs.readFileSync(schemaPath, 'utf8');
+        db.exec(schema, (err) => {
+          if (err) {
+            console.error('❌ Error initializing schema:', err.message);
+          } else {
+            console.log('✅ Database schema initialized successfully');
+          }
+        });
+      } else {
+        console.warn('⚠️ Schema file not found at:', schemaPath);
+      }
+    } else {
+      console.log('✅ Database schema already exists');
+    }
+  });
+};
+
+initSchema();
 
 // Graceful shutdown handler
 process.on('SIGINT', () => {
