@@ -6,6 +6,7 @@ import { apiHelpers } from '../services/api';
 /**
  * Auth Success Page
  * Handles OAuth callback with JWT token
+ * This page receives the token from backend after successful Google OAuth
  */
 export default function AuthSuccess() {
   const navigate = useNavigate();
