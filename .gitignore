@@ -152,7 +152,7 @@ temp/
 *.tmp
 
 # AI models (if downloading locally)
-models/
+# models/  # DISABLED - We need backend/src/models/ in git!
 *.bin
 *.gguf
 

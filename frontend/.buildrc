@@ -1,0 +1,2 @@
+# Build command for frontend
+npm install && npm run build
