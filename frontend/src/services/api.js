@@ -7,8 +7,10 @@ import axios from 'axios'
 
 // Create axios instance with default configuration
 const api = axios.create({
-  // Use Vite proxy for local development
-  baseURL: '/api',
+  // Use environment variable in production, proxy in development
+  baseURL: import.meta.env.VITE_API_URL 
+    ? `${import.meta.env.VITE_API_URL}/api`
+    : '/api',
   timeout: 60000, // Increased to 60 seconds for Gmail sync
   headers: {
     'Content-Type': 'application/json',
