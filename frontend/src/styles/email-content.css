@@ -1,0 +1,461 @@
+/* Email Content Styles - Gmail-like rich content rendering */
+
+/* Animation classes */
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Email body styles for better HTML rendering */
+.email-body {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Make sure images display properly */
+.email-body img {
+  max-width: 100% !important;
+  height: auto !important;
+  display: block;
+  margin: 10px 0;
+  border-radius: 4px;
+}
+
+/* Center-aligned images */
+.email-body center img,
+.email-body [align="center"] img {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Tables in emails (common in newsletters) */
+.email-body table {
+  max-width: 100% !important;
+  border-collapse: collapse;
+}
+
+.email-body table img {
+  display: block;
+}
+
+/* Links */
+.email-body a {
+  color: #1a73e8;
+  text-decoration: none;
+}
+
+.email-body a:hover {
+  text-decoration: underline;
+}
+
+/* Buttons in emails */
+.email-body .button,
+.email-body a[style*="background"] {
+  display: inline-block;
+  padding: 10px 20px;
+  border-radius: 4px;
+  text-decoration: none;
+  margin: 10px 0;
+}
+
+
+.email-content-wrapper {
+  background: #f8fafc;
+  padding: 0;
+
+.email-content {
+  background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
+  border-radius: 16px;
+  box-shadow: 
+    0 4px 20px rgba(0,0,0,0.08),
+    0 1px 3px rgba(0,0,0,0.05);
+  border: 1px solid #e1e5e9;
+  padding: 2.5rem 3rem;
+  margin: 1rem auto 2rem auto;
+  max-width: 750px;
+  color: #1a1d29;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", "Helvetica Neue", Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.75;
+  word-break: break-word;
+  overflow-x: auto;
+  position: relative;
+}
+
+/* Reset table-based email styles inside the card */
+.email-content table,
+.email-content th,
+.email-content td {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+.email-content tr {
+  background: transparent !important;
+}
+.email-content td,
+.email-content th {
+  vertical-align: top;
+}
+.email-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+.email-content hr {
+  border: none;
+  border-top: 1px solid #e5e7eb;
+  margin: 1.5rem 0;
+}
+.email-content a {
+  color: #2563eb;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+.email-content a:hover {
+  color: #0ea5e9;
+}
+.email-content p {
+  margin: 0.5em 0;
+}
+.email-content ul,
+.email-content ol {
+  margin: 0.5em 0 0.5em 1.5em;
+}
+.email-content blockquote {
+  border-left: 3px solid #a5b4fc;
+  margin: 1em 0;
+  padding: 0.5em 1em;
+    /* Universal reset for all children */
+    background-color: #fff !important;
+  }
+
+  .email-content * {
+    box-sizing: border-box !important;
+    background: none !important;
+    background-color: transparent !important;
+    color: inherit !important;
+    font-family: inherit !important;
+    font-size: inherit !important;
+    line-height: inherit !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    text-align: left !important;
+    vertical-align: baseline !important;
+  }
+  .email-content table,
+  .email-content th,
+  .email-content td {
+  background: #f3f4f6;
+  color: #374151;
+  border-radius: 8px;
+}
+}
+
+.email-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  .email-content button,
+  .email-content input,
+  .email-content select,
+  .email-content textarea {
+    background: #f3f4f6 !important;
+    color: #374151 !important;
+    border-radius: 6px !important;
+    border: 1px solid #e5e7eb !important;
+    padding: 0.25em 0.75em !important;
+    font-size: 15px !important;
+    box-shadow: none !important;
+    margin: 0.25em 0.5em 0.25em 0 !important;
+  }
+  height: 3px;
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6, #06b6d4);
+  border-radius: 16px 16px 0 0;
+}
+
+@media (max-width: 800px) {
+  .email-content {
+    padding: 1.2rem 0.7rem;
+    max-width: 100vw;
+    font-size: 14px;
+  }
+}
+
+/* Typography */
+.email-content h1,
+.email-content h2,
+.email-content h3,
+.email-content h4,
+.email-content h5,
+.email-content h6 {
+  font-weight: 700;
+  background: linear-gradient(135deg, #1e293b, #3b82f6);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: #1e293b;
+  margin-bottom: 1.25rem;
+  line-height: 1.3;
+  position: relative;
+}
+
+.email-content h1::after,
+.email-content h2::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 40px;
+  height: 2px;
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+  border-radius: 1px;
+}
+
+.email-content h1 { font-size: 24px; }
+.email-content h2 { font-size: 20px; }
+.email-content h3 { font-size: 18px; }
+.email-content h4 { font-size: 16px; }
+.email-content h5 { font-size: 14px; }
+.email-content h6 { font-size: 12px; }
+
+.email-content p {
+  margin: 0 0 1.1em 0;
+  font-size: 1em;
+}
+
+.email-content p:last-child {
+  margin-bottom: 0;
+}
+
+/* Links */
+.email-content a {
+  color: #3b82f6;
+  text-decoration: none;
+  word-break: break-all;
+  background: linear-gradient(135deg, transparent 0%, rgba(59, 130, 246, 0.1) 100%);
+  padding: 2px 6px;
+  border-radius: 6px;
+  border-bottom: 2px solid #3b82f6;
+  transition: all 0.2s ease;
+}
+
+.email-content a:hover {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(59, 130, 246, 0.2) 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.email-content a:visited {
+  color: #8b5cf6;
+  border-bottom-color: #8b5cf6;
+}
+
+/* Images */
+.email-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 12px;
+  margin: 24px 0;
+  box-shadow: 
+    0 8px 25px rgba(0,0,0,0.12),
+    0 3px 10px rgba(0,0,0,0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.email-content img:hover {
+  transform: scale(1.02);
+  box-shadow: 
+    0 12px 35px rgba(0,0,0,0.15),
+    0 5px 15px rgba(0,0,0,0.1);
+}
+
+.email-content img[width] {
+  width: auto;
+  max-width: 100%;
+}
+
+/* Lists */
+.email-content ul,
+.email-content ol {
+  margin-bottom: 1.2rem;
+  padding-left: 1.7rem;
+}
+
+.email-content li {
+  margin-bottom: 0.25rem;
+}
+
+.email-content ul li {
+  list-style-type: disc;
+}
+
+.email-content ol li {
+  list-style-type: decimal;
+}
+
+/* Tables */
+.email-content table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid #d1d5db;
+  margin-bottom: 1.5rem;
+  font-size: 14px;
+  background: #f9fafb;
+  border-radius: 6px;
+}
+
+.email-content th,
+.email-content td {
+  border: 1px solid #d1d5db;
+  padding: 0.75rem;
+  text-align: left;
+}
+
+.email-content th {
+  background-color: #f9fafb;
+  font-weight: 600;
+  color: #374151;
+}
+
+.email-content tr:nth-child(even) {
+  background-color: #f9fafb;
+}
+
+/* Blockquotes */
+.email-content blockquote {
+  border-left: 4px solid #d1d5db;
+  padding-left: 1rem;
+  margin-left: 0;
+  margin-bottom: 1rem;
+  font-style: italic;
+  color: #6b7280;
+  background-color: #f8f9fa;
+  padding: 12px 16px;
+}
+
+/* Code */
+.email-content pre {
+  background-color: #f3f4f6;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  overflow-x: auto;
+  font-family: 'Monaco', 'Consolas', 'Courier New', monospace;
+  font-size: 13px;
+}
+
+.email-content code {
+  background-color: #f3f4f6;
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  font-family: 'Monaco', 'Consolas', 'Courier New', monospace;
+}
+
+.email-content pre code {
+  background-color: transparent;
+  padding: 0;
+}
+
+/* Emphasis */
+.email-content strong,
+.email-content b {
+  font-weight: 600;
+}
+
+.email-content em,
+.email-content i {
+  font-style: italic;
+}
+
+.email-content u {
+  text-decoration: underline;
+}
+
+.email-content s,
+.email-content strike,
+.email-content del {
+  text-decoration: line-through;
+}
+
+/* Gmail-specific styles */
+.email-content div[style*="border-left"] {
+  /* Handle Gmail quote styling */
+  border-left: 2px solid #d1d5db;
+  padding-left: 1rem;
+  margin-left: 0.5rem;
+  color: #6b7280;
+}
+
+.email-content font[color] {
+  /* Preserve color attributes from emails */
+  color: inherit;
+}
+
+/* Responsive images and content */
+@media (max-width: 768px) {
+  .email-content {
+    font-size: 16px;
+  }
+  
+  .email-content img {
+    max-width: 100%;
+    height: auto;
+  }
+  
+  .email-content table {
+    font-size: 12px;
+  }
+  
+  .email-content th,
+  .email-content td {
+    padding: 0.5rem 0.25rem;
+  }
+}
+
+/* Handle Outlook and other email client styles */
+.email-content .MsoNormal,
+.email-content .msonormal {
+  margin: 0 0 16px 0;
+}
+
+/* Signature styling */
+.email-content div[id*="signature"],
+.email-content .signature {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+/* Quoted content styling */
+.email-content .gmail_quote {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.email-content .gmail_quote::before {
+  content: "On " attr(data-date) ", " attr(data-sender) " wrote:";
+  display: block;
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-bottom: 0.5rem;
+}

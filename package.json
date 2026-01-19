@@ -1,0 +1,16 @@
+{
+  "private": true,
+  "scripts": {
+    "dev:backend": "cd backend && set PORT=3001&& set FRONTEND_URL=http://localhost:5173&& set GOOGLE_REDIRECT_URI=http://localhost:3001/api/auth/callback&& npm run dev",
+    "dev:backend:start": "cd backend && set PORT=3001&& set FRONTEND_URL=http://localhost:5173&& set GOOGLE_REDIRECT_URI=http://localhost:3001/api/auth/callback&& npm start",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:frontend:open": "cd frontend && npm run dev:open",
+    "dev": "powershell -NoProfile -ExecutionPolicy Bypass -Command \"Start-Job { cd backend; $env:PORT='3001'; $env:FRONTEND_URL='http://localhost:5173'; $env:GOOGLE_REDIRECT_URI='http://localhost:3001/api/auth/callback'; npm run dev } | Out-Null; Start-Sleep -Seconds 2; cd frontend; npm run dev\""
+  },
+  "dependencies": {
+    "@shadcn/ui": "^0.0.4",
+    "framer-motion": "^12.23.24",
+    "he": "^1.2.0",
+    "jsonwebtoken": "^9.0.2"
+  }
+}

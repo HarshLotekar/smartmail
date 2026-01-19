@@ -1,0 +1,52 @@
+{
+  "name": "smartmail-backend",
+  "version": "1.0.0",
+  "description": "AI-powered email organizer backend API",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "init-db": "node database/init.js",
+    "validate-db": "node validate-schema.js",
+    "reset-db": "rm -f database/smartmail.db* && npm run init-db",
+    "test": "jest --experimental-vm-modules"
+  },
+  "keywords": [
+    "email",
+    "ai",
+    "gmail",
+    "organizer",
+    "express"
+  ],
+  "author": "SmartMail Team",
+  "license": "MIT",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.68.0",
+    "@google/generative-ai": "^0.24.1",
+    "axios": "^1.6.8",
+    "bcryptjs": "^2.4.3",
+    "compression": "^1.7.4",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.2.0",
+    "express-session": "^1.18.2",
+    "googleapis": "^134.0.0",
+    "groq-sdk": "^0.34.0",
+    "helmet": "^7.1.0",
+    "joi": "^17.12.3",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.0",
+    "multer": "^2.0.2",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^5.1.6"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
