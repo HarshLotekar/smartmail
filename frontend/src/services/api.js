@@ -55,7 +55,11 @@ export const authAPI = {
   
   // Initiate Google OAuth
   googleLogin: () => {
-    window.location.href = `${api.defaults.baseURL}/auth/google`
+    // Direct backend URL for production
+    const backendURL = window.location.hostname.includes('onrender.com')
+      ? 'https://smartmail-w4ff.onrender.com'
+      : 'http://localhost:3001'
+    window.location.href = `${backendURL}/api/auth/google`
   },
   
   // Logout user
