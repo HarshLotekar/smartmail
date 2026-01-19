@@ -16,6 +16,7 @@ import Settings from './pages/Settings';
 import Home from './pages/Home';
 import TrustScreen from './pages/TrustScreen';
 import EmailContentDemo from './pages/EmailContentDemo';
+import AuthSuccess from './pages/AuthSuccess';
 
 // Initialize theme on app load
 const initializeTheme = () => {
@@ -63,6 +64,7 @@ function AppContent() {
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/trust" element={<TrustScreen />} />
+      <Route path="/auth/success" element={<AuthSuccess />} />
       <Route
         path="/inbox"
         element={

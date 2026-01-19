@@ -97,7 +97,7 @@ async function handleCallback(req, res) {
       });
     }
 
-    // Generate JWT token
+    // Generate JWT token (NO cookies, NO sessions)
     const jwtToken = jwt.sign(
       { 
         userId: user.id, 
@@ -108,24 +108,11 @@ async function handleCallback(req, res) {
       { expiresIn: JWT_EXPIRES_IN }
     );
 
-    // Set JWT as HTTP-only cookie
-    res.cookie('auth_token', jwtToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-    });
-
-    // Redirect to frontend with token and user data as URL parameters
+    // Redirect to frontend /auth/success with token
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-    const userData = encodeURIComponent(JSON.stringify({
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      avatar_url: user.avatar_url
-    }));
+    const redirectUrl = `${frontendUrl}/auth/success?token=${jwtToken}`;
     
-    const redirectUrl = `${frontendUrl}/?token=${jwtToken}&user=${userData}`;
+    console.log('✅ OAuth success, redirecting to:', redirectUrl);
     res.redirect(redirectUrl);
 
   } catch (error) {

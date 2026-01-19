@@ -28,16 +28,6 @@ export default function Home() {
   useEffect(() => {
     if (user) {
       navigate("/inbox");
-    } else {
-      // Check for token/user in URL (after Google OAuth)
-      const params = new URLSearchParams(window.location.search);
-      const token = params.get("token");
-      const userParam = params.get("user");
-      if (token && userParam) {
-        localStorage.setItem("smartmail_token", token);
-        localStorage.setItem("smartmail_user", userParam);
-        navigate("/inbox");
-      }
     }
   }, [user, navigate]);
 

@@ -286,7 +286,10 @@ export const apiHelpers = {
 
 // Google OAuth login function for landing page
 export async function loginWithGoogle() {
-  window.location.href = "/api/auth/google";
+  const backendURL = window.location.hostname.includes('onrender.com')
+    ? 'https://smartmail-w4ff.onrender.com'
+    : 'http://localhost:3001';
+  window.location.href = `${backendURL}/api/auth/google`;
 }
 
 export default api
