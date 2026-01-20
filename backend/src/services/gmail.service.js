@@ -12,13 +12,56 @@ class GmailService {
    * Get authenticated Gmail client for user
    */
   async getGmailClient(userId) {
-    const user = await UserModel.findById(userId);
+    const user = await UserModel.findUserById(userId);
     
-    if (!user || !user.access_token || !user.refresh_token) {
+    if (!user) {
+      console.error(`❌ User ${userId} not found in database`);
+      throw new AppError('User not found', 404);
+    }
+    
+    if (!user.access_token || !user.refresh_token) {
+      console.error(`❌ User ${userId} missing OAuth tokens:`, {
+        hasAccessToken: !!user.access_token,
+        hasRefreshToken: !!user.refresh_token
+      });
       throw new AppError('User not authenticated with Gmail', 401);
     }
 
     try {
+      // Check if token is expired (if token_expires_at exists)
+      if (user.token_expires_at) {
+        const expiresAt = new Date(user.token_expires_at);
+        const now = new Date();
+        
+        // Refresh if expired or expiring in next 5 minutes
+        if (expiresAt <= new Date(now.getTime() + 5 * 60 * 1000)) {
+          console.log(`🔄 Token expired/expiring for user ${userId}, refreshing...`);
+          
+          try {
+            const newTokens = await gmailConfig.refreshAccessToken(user.refresh_token);
+            
+            // Update tokens in database
+            const expiresAt = newTokens.expiry_date 
+              ? new Date(newTokens.expiry_date) 
+              : new Date(Date.now() + 3600 * 1000);
+            
+            await UserModel.updateUserTokens(
+              userId,
+              newTokens.access_token,
+              newTokens.refresh_token || user.refresh_token,
+              expiresAt
+            );
+            
+            console.log(`✅ Tokens refreshed for user ${userId}`);
+            
+            return gmailConfig.createGmailClient(newTokens.access_token, newTokens.refresh_token || user.refresh_token);
+          } catch (refreshError) {
+            console.error(`❌ Failed to refresh tokens for user ${userId}:`, refreshError.message);
+            throw new AppError('Failed to refresh Gmail authentication. Please login again.', 401);
+          }
+        }
+      }
+      
       return gmailConfig.createGmailClient(user.access_token, user.refresh_token);
     } catch (error) {
       console.error('Failed to create Gmail client:', error);
