@@ -114,6 +114,9 @@ const runMigrations = () => {
     if (!columnNames.includes('ai_suggested_reply')) missingColumns.push(['ai_suggested_reply', 'TEXT']);
     if (!columnNames.includes('ai_processing_version')) missingColumns.push(['ai_processing_version', 'TEXT DEFAULT "1.0"']);
     if (!columnNames.includes('search_vector')) missingColumns.push(['search_vector', 'TEXT']);
+    if (!columnNames.includes('labels')) missingColumns.push(['labels', 'TEXT DEFAULT "[]"']);
+    if (!columnNames.includes('has_attachments')) missingColumns.push(['has_attachments', 'BOOLEAN DEFAULT 0']);
+    if (!columnNames.includes('attachments')) missingColumns.push(['attachments', 'TEXT DEFAULT "[]"']);
     
     if (missingColumns.length > 0) {
       console.log(`➕ Adding ${missingColumns.length} missing columns to messages table...`);
@@ -173,6 +176,7 @@ const createUnsubscribesTable = () => {
       email_address TEXT NOT NULL,
       sender_name TEXT,
       unsubscribe_method TEXT,
+      unsubscribed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
       UNIQUE(user_id, email_address)
