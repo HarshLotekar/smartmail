@@ -47,6 +47,7 @@ CREATE TABLE IF NOT EXISTS messages (
     cc_email TEXT,
     bcc_email TEXT,
     date DATETIME,
+    internal_date INTEGER,  -- Gmail internal timestamp (milliseconds since epoch)
     
     -- Email content
     body_text TEXT,
