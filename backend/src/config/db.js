@@ -97,6 +97,7 @@ const runMigrations = () => {
     if (!columnNames.includes('cc_emails')) missingColumns.push(['cc_emails', 'TEXT']);
     if (!columnNames.includes('bcc_emails')) missingColumns.push(['bcc_emails', 'TEXT']);
     if (!columnNames.includes('ai_processed')) missingColumns.push(['ai_processed', 'BOOLEAN DEFAULT 0']);
+    if (!columnNames.includes('gmail_history_id')) missingColumns.push(['gmail_history_id', 'TEXT']);
     if (!columnNames.includes('is_deleted')) missingColumns.push(['is_deleted', 'BOOLEAN DEFAULT 0']);
     if (!columnNames.includes('is_draft')) missingColumns.push(['is_draft', 'BOOLEAN DEFAULT 0']);
     if (!columnNames.includes('is_sent')) missingColumns.push(['is_sent', 'BOOLEAN DEFAULT 0']);
