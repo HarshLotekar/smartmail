@@ -3,59 +3,11 @@ import db from '../config/db.js';
 /**
  * Message Model
  * Handles email messages and their metadata
+ * Note: Table creation handled by schema.sql in db.js
  */
 
-/**
- * Create messages table if it doesn't exist
- */
-function createMessagesTable() {
-  const sql = `
-    CREATE TABLE IF NOT EXISTS messages (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      user_id INTEGER NOT NULL,
-      gmail_id TEXT UNIQUE NOT NULL,
-      thread_id TEXT,
-      subject TEXT,
-      from_email TEXT NOT NULL,
-      from_name TEXT,
-      to_email TEXT,
-      to_name TEXT,
-      cc_emails TEXT,
-      bcc_emails TEXT,
-      body_text TEXT,
-      body_html TEXT,
-      snippet TEXT,
-      date DATETIME NOT NULL,
-      is_read BOOLEAN DEFAULT 0,
-      is_starred BOOLEAN DEFAULT 0,
-      is_important BOOLEAN DEFAULT 0,
-      is_archived BOOLEAN DEFAULT 0,
-      is_deleted BOOLEAN DEFAULT 0,
-      labels TEXT DEFAULT '[]',
-      has_attachments BOOLEAN DEFAULT 0,
-      attachments TEXT DEFAULT '[]',
-      ai_summary TEXT,
-      ai_category TEXT,
-      ai_action_items TEXT,
-      ai_sentiment TEXT,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
-    )
-  `;
-
-  return new Promise((resolve, reject) => {
-    db.run(sql, (err) => {
-      if (err) {
-        console.error('❌ Error creating messages table:', err.message);
-        reject(err);
-      } else {
-        console.log('✅ Messages table ready');
-        resolve();
-      }
-    });
-  });
-}
+// Table creation moved to schema.sql to ensure consistency
+// This avoids schema drift between model and migration files
 
 /**
  * Create message indexes for better performance
@@ -527,20 +479,10 @@ function getMessagesByThread(threadId) {
   });
 }
 
-// Import unsubscribe model to initialize its table
-import { createUnsubscribeTable } from './unsubscribe.model.js';
-
-// Initialize table on import
-Promise.all([
-  createMessagesTable(),
-  createMessageIndexes(),
-  createUnsubscribeTable()
-]).catch(err => {
-  console.error('Failed to initialize messages table:', err);
-});
+// Table initialization removed - handled by schema.sql in db.js
+// This prevents schema drift and ensures consistent table structure
 
 export {
-  createMessagesTable,
   createMessageIndexes,
   createMessage,
   findMessageByGmailId,

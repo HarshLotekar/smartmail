@@ -327,13 +327,9 @@ function isRateLimited(user) {
   return now < retryAfter;
 }
 
-// Initialize table on import
-createUsersTable().catch(err => {
-  console.error('Failed to initialize users table:', err);
-});
+// Table initialization removed - handled by schema.sql in db.js
 
 export {
-  createUsersTable,
   createUser,
   findUserByGoogleId,
   findUserByEmail,

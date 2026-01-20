@@ -500,18 +500,9 @@ function searchLabels(userId, query) {
   });
 }
 
-// Initialize tables on import
-Promise.all([
-  createLabelsTable(),
-  createMessageLabelsTable(),
-  createLabelIndexes()
-]).catch(err => {
-  console.error('Failed to initialize labels tables:', err);
-});
+// Table initialization removed - handled by schema.sql in db.js
 
 export {
-  createLabelsTable,
-  createMessageLabelsTable,
   createLabelIndexes,
   createSystemLabels,
   createLabel,
