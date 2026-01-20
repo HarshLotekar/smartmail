@@ -141,8 +141,10 @@ const fixNullInternalDates = () => {
     function(err) {
       if (err) {
         console.error('❌ Error fixing NULL internal_date:', err.message);
-      } else if (this.changes > 0) {
+      } else if (this && this.changes > 0) {
         console.log(`✅ Fixed ${this.changes} NULL internal_date values`);
+      } else {
+        console.log('✅ All internal_date values are set');
       }
     }
   );
