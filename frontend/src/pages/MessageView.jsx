@@ -467,7 +467,7 @@ const MessageView = () => {
               body={email.body_html || email.bodyHtml || email.body_text || email.bodyText || ''}
               timestamp={email.date || email.received_at || email.created_at || new Date().toISOString()}
               avatarUrl={null}
-              attachments={parseAttachments(email.attachments).map(att => ({
+              attachments={parseAttachments(email.attachments || email.attachment_data).map(att => ({
                 filename: att.filename || att.name || 'attachment',
                 name: att.filename || att.name || 'attachment',
                 size: att.size || 0,

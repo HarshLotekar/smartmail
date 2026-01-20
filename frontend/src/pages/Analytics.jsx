@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BarChart3, TrendingUp, Mail, Star, Clock, Users, AlertCircle, Loader2 } from 'lucide-react';
-import axios from 'axios';
+import api from '../services/api';
 import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 // Colors matching the 10 email categories - Blue-Purple Theme
@@ -33,9 +33,7 @@ export default function Analytics() {
       setLoading(true);
       setError(null);
       
-      const response = await axios.post('/api/analytics/insights', {}, {
-        withCredentials: true
-      });
+      const response = await api.post('/analytics/insights');
       
       if (response.data.success) {
         setInsights(response.data.data);
