@@ -190,8 +190,10 @@ function getMessagesByUser(userId, options = {}) {
     params.push(category);
   }
 
-  // Add sorting and pagination
-  sql += ` ORDER BY ${sortBy} ${sortOrder} LIMIT ? OFFSET ?`;
+  // Add sorting and pagination (NULL-safe)
+  const sortColumn = sortBy === 'date' ? 'COALESCE(date, created_at)' : 
+                     sortBy === 'internal_date' ? 'COALESCE(internal_date, 0)' : sortBy;
+  sql += ` ORDER BY ${sortColumn} ${sortOrder} LIMIT ? OFFSET ?`;
   params.push(limit, offset);
 
   return new Promise((resolve, reject) => {
@@ -465,7 +467,7 @@ function getMessageStats(userId) {
  * Get messages by thread ID
  */
 function getMessagesByThread(threadId) {
-  const sql = 'SELECT * FROM messages WHERE thread_id = ? ORDER BY date ASC';
+  const sql = 'SELECT * FROM messages WHERE thread_id = ? ORDER BY COALESCE(date, created_at) ASC';
 
   return new Promise((resolve, reject) => {
     db.all(sql, [threadId], (err, rows) => {

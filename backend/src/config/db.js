@@ -97,12 +97,31 @@ const runMigrations = () => {
           console.error('❌ Migration failed:', err.message);
         } else {
           console.log('✅ Migration completed: internal_date column added');
+          fixNullInternalDates();
         }
       });
     } else {
-      console.log('✅ All migrations up to date');
+      console.log('✅ internal_date column exists');
+      fixNullInternalDates();
     }
   });
+};
+
+// Fix NULL internal_date values
+const fixNullInternalDates = () => {
+  db.run(`UPDATE messages 
+          SET internal_date = CAST((julianday(COALESCE(date, created_at)) - 2440587.5) * 86400000 AS INTEGER)
+          WHERE internal_date IS NULL`, 
+    (err) => {
+      if (err) {
+        console.error('❌ Error fixing NULL internal_date:', err.message);
+      } else if (this && this.changes > 0) {
+        console.log(`✅ Fixed ${this.changes} NULL internal_date values`);
+      } else {
+        console.log('✅ All migrations up to date');
+      }
+    }
+  );
 };
 
 initSchema();
