@@ -188,7 +188,7 @@ async function initialSync(req, res, gmail, userId) {
   try {
     console.log('🔄 [SYNC] Initial sync - fetching message list (IDs only)');
     
-    const maxMessages = 50; // Conservative limit for initial sync
+    const maxMessages = 500; // Fetch up to 500 messages for initial sync
     let allMessages = [];
     let pageToken = null;
     

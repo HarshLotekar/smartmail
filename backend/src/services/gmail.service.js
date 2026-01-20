@@ -75,7 +75,7 @@ class GmailService {
   async fetchMessages(userId, options = {}) {
     const gmail = await this.getGmailClient(userId);
     const {
-      maxResults = 50,
+      maxResults = 500,
       labelIds = ['INBOX'],
       q = '', // Search query
       pageToken = null
@@ -245,7 +245,7 @@ class GmailService {
    */
   async syncMessages(userId, options = {}) {
     const {
-      maxResults = 100,
+      maxResults = 500,
       labelIds = ['INBOX']
     } = options;
 
