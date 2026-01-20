@@ -254,12 +254,8 @@ const Inbox = () => {
       // Fetch updated emails
       await fetchEmails()
       
-      // Show success message
-      if (syncResponse.data.newMessages > 0) {
-        setError(`✅ Synced ${syncResponse.data.newMessages} new messages`)
-      } else {
-        setError(`✅ Already up to date (0 new messages)`)
-      }
+      // Clear any previous error on success
+      setError(null)
       
     } catch (err) {
       console.error('[SYNC] Failed:', err)
