@@ -53,12 +53,24 @@ async function handleCallback(req, res) {
     // Exchange code for tokens
     const tokens = await gmailConfig.getTokensFromCode(code);
     
+    console.log('🔑 Tokens received from Google:', {
+      hasAccessToken: !!tokens.access_token,
+      hasRefreshToken: !!tokens.refresh_token,
+      expiresIn: tokens.expires_in
+    });
+    
     if (!tokens.access_token) {
       throw new Error('No access token received from Google');
     }
 
     // Get user profile information
     const profile = await gmailConfig.getUserProfile(tokens.access_token);
+    
+    console.log('👤 User profile:', {
+      id: profile.id,
+      email: profile.email,
+      name: profile.name
+    });
 
     // Calculate token expiration
     const expiresAt = new Date(Date.now() + (tokens.expires_in || 3600) * 1000);
@@ -67,6 +79,7 @@ async function handleCallback(req, res) {
     let user = await userModel.findUserByGoogleId(profile.id);
 
     if (user) {
+      console.log('📝 Updating existing user:', user.id);
       // Update existing user tokens
       await userModel.updateUserTokens(
         user.id,
@@ -84,7 +97,12 @@ async function handleCallback(req, res) {
       }
 
       user = await userModel.findUserById(user.id);
+      console.log('✅ User updated, has tokens:', {
+        hasAccessToken: !!user.access_token,
+        hasRefreshToken: !!user.refresh_token
+      });
     } else {
+      console.log('➕ Creating new user');
       // Create new user
       user = await userModel.createUser({
         googleId: profile.id,
@@ -95,6 +113,7 @@ async function handleCallback(req, res) {
         refreshToken: tokens.refresh_token,
         tokenExpiresAt: expiresAt
       });
+      console.log('✅ User created:', user.id);
     }
 
     // Generate JWT token (NO cookies, NO sessions)
