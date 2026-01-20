@@ -254,12 +254,12 @@ const createAllMissingTables = () => {
     else console.log('✅ ai_processing_logs table ready');
   });
   
-  // Drop and recreate email_decisions table to fix foreign key constraint
+  // Drop and recreate email_decisions table without problematic foreign key
   db.run(`DROP TABLE IF EXISTS email_decisions`, (err) => {
     if (err) console.error('❌ Error dropping old email_decisions:', err.message);
     else console.log('🔄 Dropped old email_decisions table');
     
-    // Create email_decisions table with proper foreign key
+    // Create email_decisions table WITHOUT foreign key on email_id (can't reference gmail_id due to composite UNIQUE)
     db.run(`
       CREATE TABLE email_decisions (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -275,12 +275,11 @@ const createAllMissingTables = () => {
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
-        FOREIGN KEY (email_id) REFERENCES messages (gmail_id) ON DELETE CASCADE,
         UNIQUE(email_id, user_id)
       )
     `, (err) => {
       if (err) console.error('❌ Error creating email_decisions:', err.message);
-      else console.log('✅ email_decisions table recreated with proper foreign keys');
+      else console.log('✅ email_decisions table recreated (FK constraint removed to fix mismatch)');
     });
   });
   
