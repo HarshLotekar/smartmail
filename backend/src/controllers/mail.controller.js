@@ -241,6 +241,8 @@ async function syncMessages(req, res) {
 async function getMessages(req, res) {
   try {
     const userId = req.user.userId;
+    console.log('📧 getMessages called for user:', userId);
+    
     const {
       page = 1,
       limit = 500,
@@ -269,20 +271,24 @@ async function getMessages(req, res) {
     if (isArchived !== undefined) options.isArchived = isArchived === 'true';
     if (category) options.category = category;
 
-    const messages = await messageModel.getMessagesByUser(userId, options);
-    const stats = await messageModel.getMessageStats(userId);
+    console.log('📋 Fetching messages with options:', options);
 
-      console.log('Retrieved', messages.length, 'messages for user', userId);
-      if (messages.length > 0) {
-        console.log('Sample message structure:', {
-          id: messages[0].id,
-          subject: messages[0].subject,
-          from_name: messages[0].from_name,
-          from_email: messages[0].from_email,
-          body_html: messages[0].body_html ? 'Has HTML' : 'No HTML',
-          body_text: messages[0].body_text ? 'Has text' : 'No text'
-        });
-      }
+    const messages = await messageModel.getMessagesByUser(userId, options);
+    console.log('✅ Retrieved', messages.length, 'messages');
+    
+    const stats = await messageModel.getMessageStats(userId);
+    console.log('✅ Got stats:', stats);
+
+    if (messages.length > 0) {
+      console.log('Sample message structure:', {
+        id: messages[0].id,
+        subject: messages[0].subject,
+        from_name: messages[0].from_name,
+        from_email: messages[0].from_email,
+        body_html: messages[0].body_html ? 'Has HTML' : 'No HTML',
+        body_text: messages[0].body_text ? 'Has text' : 'No text'
+      });
+    }
 
     res.json({
       success: true,
@@ -297,10 +303,17 @@ async function getMessages(req, res) {
 
   } catch (error) {
     console.error('❌ Error getting messages:', error.message);
+    console.error('❌ Error stack:', error.stack);
+    console.error('❌ Error details:', {
+      userId: req.user?.userId,
+      query: req.query,
+      error: error.toString()
+    });
     res.status(500).json({
       success: false,
       error: 'Failed to get messages',
-      message: error.message
+      message: error.message,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
 }
