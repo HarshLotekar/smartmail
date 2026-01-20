@@ -94,12 +94,26 @@ const runMigrations = () => {
     // Check for all required columns
     if (!columnNames.includes('internal_date')) missingColumns.push(['internal_date', 'INTEGER']);
     if (!columnNames.includes('to_name')) missingColumns.push(['to_name', 'TEXT']);
+    if (!columnNames.includes('cc_emails')) missingColumns.push(['cc_emails', 'TEXT']);
+    if (!columnNames.includes('bcc_emails')) missingColumns.push(['bcc_emails', 'TEXT']);
     if (!columnNames.includes('is_deleted')) missingColumns.push(['is_deleted', 'BOOLEAN DEFAULT 0']);
     if (!columnNames.includes('is_draft')) missingColumns.push(['is_draft', 'BOOLEAN DEFAULT 0']);
     if (!columnNames.includes('is_sent')) missingColumns.push(['is_sent', 'BOOLEAN DEFAULT 0']);
     if (!columnNames.includes('is_trash')) missingColumns.push(['is_trash', 'BOOLEAN DEFAULT 0']);
     if (!columnNames.includes('is_spam')) missingColumns.push(['is_spam', 'BOOLEAN DEFAULT 0']);
+    if (!columnNames.includes('is_archived')) missingColumns.push(['is_archived', 'BOOLEAN DEFAULT 0']);
     if (!columnNames.includes('ai_priority')) missingColumns.push(['ai_priority', 'INTEGER DEFAULT 0']);
+    if (!columnNames.includes('requires_reply')) missingColumns.push(['requires_reply', 'BOOLEAN DEFAULT 0']);
+    if (!columnNames.includes('requires_action')) missingColumns.push(['requires_action', 'BOOLEAN DEFAULT 0']);
+    if (!columnNames.includes('is_newsletter')) missingColumns.push(['is_newsletter', 'BOOLEAN DEFAULT 0']);
+    if (!columnNames.includes('ai_action_items')) missingColumns.push(['ai_action_items', 'TEXT']);
+    if (!columnNames.includes('ai_confidence')) missingColumns.push(['ai_confidence', 'REAL DEFAULT 0.0']);
+    if (!columnNames.includes('ai_sentiment')) missingColumns.push(['ai_sentiment', 'TEXT']);
+    if (!columnNames.includes('ai_keywords')) missingColumns.push(['ai_keywords', 'TEXT']);
+    if (!columnNames.includes('ai_entities')) missingColumns.push(['ai_entities', 'TEXT']);
+    if (!columnNames.includes('ai_suggested_reply')) missingColumns.push(['ai_suggested_reply', 'TEXT']);
+    if (!columnNames.includes('ai_processing_version')) missingColumns.push(['ai_processing_version', 'TEXT DEFAULT "1.0"']);
+    if (!columnNames.includes('search_vector')) missingColumns.push(['search_vector', 'TEXT']);
     
     if (missingColumns.length > 0) {
       console.log(`➕ Adding ${missingColumns.length} missing columns to messages table...`);
