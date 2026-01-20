@@ -154,7 +154,104 @@ const runMigrations = () => {
 const createAllMissingTables = () => {
   console.log('📋 Creating missing tables...');
   
-  // Create email_decisions table
+  // First: Create UNIQUE index on gmail_id for foreign key constraint
+  db.run(`CREATE UNIQUE INDEX IF NOT EXISTS idx_messages_gmail_id ON messages(gmail_id)`, (err) => {
+    if (err && !err.message.includes('already exists')) {
+      console.error('❌ Error creating gmail_id index:', err.message);
+    } else {
+      console.log('✅ gmail_id unique index ready');
+    }
+  });
+  
+  // Create labels table
+  db.run(`
+    CREATE TABLE IF NOT EXISTS labels (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      name TEXT NOT NULL,
+      color TEXT DEFAULT '#007bff',
+      description TEXT,
+      is_system BOOLEAN DEFAULT 0,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+      UNIQUE(user_id, name)
+    )
+  `, (err) => {
+    if (err) console.error('❌ Error creating labels:', err.message);
+    else console.log('✅ labels table ready');
+  });
+  
+  // Create message_labels junction table
+  db.run(`
+    CREATE TABLE IF NOT EXISTS message_labels (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      message_id INTEGER NOT NULL,
+      label_id INTEGER NOT NULL,
+      assigned_by TEXT DEFAULT 'user',
+      confidence REAL DEFAULT 1.0,
+      assigned_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (message_id) REFERENCES messages (id) ON DELETE CASCADE,
+      FOREIGN KEY (label_id) REFERENCES labels (id) ON DELETE CASCADE,
+      UNIQUE(message_id, label_id)
+    )
+  `, (err) => {
+    if (err) console.error('❌ Error creating message_labels:', err.message);
+    else console.log('✅ message_labels table ready');
+  });
+  
+  // Create email_threads table
+  db.run(`
+    CREATE TABLE IF NOT EXISTS email_threads (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      gmail_thread_id TEXT NOT NULL,
+      subject TEXT,
+      participants TEXT,
+      message_count INTEGER DEFAULT 0,
+      is_muted BOOLEAN DEFAULT 0,
+      is_archived BOOLEAN DEFAULT 0,
+      ai_summary TEXT,
+      ai_importance REAL DEFAULT 0.0,
+      ai_last_processed DATETIME,
+      first_message_date DATETIME,
+      last_message_date DATETIME,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+      UNIQUE(user_id, gmail_thread_id)
+    )
+  `, (err) => {
+    if (err) console.error('❌ Error creating email_threads:', err.message);
+    else console.log('✅ email_threads table ready');
+  });
+  
+  // Create ai_processing_logs table
+  db.run(`
+    CREATE TABLE IF NOT EXISTS ai_processing_logs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      message_id INTEGER,
+      processing_type TEXT NOT NULL,
+      ai_provider TEXT NOT NULL,
+      ai_model TEXT,
+      input_data TEXT,
+      output_data TEXT,
+      processing_time_ms INTEGER,
+      token_count INTEGER,
+      success BOOLEAN DEFAULT 1,
+      error_message TEXT,
+      started_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      completed_at DATETIME,
+      FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+      FOREIGN KEY (message_id) REFERENCES messages (id) ON DELETE CASCADE
+    )
+  `, (err) => {
+    if (err) console.error('❌ Error creating ai_processing_logs:', err.message);
+    else console.log('✅ ai_processing_logs table ready');
+  });
+  
+  // Create email_decisions table with proper foreign key
   db.run(`
     CREATE TABLE IF NOT EXISTS email_decisions (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -170,6 +267,7 @@ const createAllMissingTables = () => {
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+      FOREIGN KEY (email_id) REFERENCES messages (gmail_id) ON DELETE CASCADE,
       UNIQUE(email_id, user_id)
     )
   `, (err) => {
@@ -193,6 +291,18 @@ const createAllMissingTables = () => {
   `, (err) => {
     if (err) console.error('❌ Error creating followups:', err.message);
     else console.log('✅ followups table ready');
+  });
+  
+  // Create schema_version table
+  db.run(`
+    CREATE TABLE IF NOT EXISTS schema_version (
+      version TEXT PRIMARY KEY,
+      applied_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      description TEXT
+    )
+  `, (err) => {
+    if (err) console.error('❌ Error creating schema_version:', err.message);
+    else console.log('✅ schema_version table ready');
   });
   
   createUnsubscribesTable();
