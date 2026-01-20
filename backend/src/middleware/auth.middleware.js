@@ -10,7 +10,26 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-i
 export const authMiddleware = (req, res, next) => {
   console.log('🔐 Auth middleware - Checking authentication');
   
-  // Check for JWT in cookies first
+  // Check for JWT in Authorization header first (for API calls)
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.substring(7);
+    try {
+      const decoded = jwt.verify(token, JWT_SECRET);
+      req.user = {
+        id: decoded.userId,
+        userId: decoded.userId, // Add both for compatibility
+        email: decoded.email,
+        googleId: decoded.googleId
+      };
+      console.log('✅ User authenticated via Bearer token:', req.user.userId);
+      return next();
+    } catch (error) {
+      console.log('❌ JWT verification failed:', error.message);
+    }
+  }
+  
+  // Check for JWT in cookies
   const token = req.cookies?.auth_token;
   
   if (token) {
@@ -18,10 +37,11 @@ export const authMiddleware = (req, res, next) => {
       const decoded = jwt.verify(token, JWT_SECRET);
       req.user = {
         id: decoded.userId,
+        userId: decoded.userId, // Add both for compatibility
         email: decoded.email,
         googleId: decoded.googleId
       };
-      console.log('✅ User authenticated via JWT:', req.user);
+      console.log('✅ User authenticated via JWT cookie:', req.user.userId);
       return next();
     } catch (error) {
       console.log('❌ JWT verification failed:', error.message);

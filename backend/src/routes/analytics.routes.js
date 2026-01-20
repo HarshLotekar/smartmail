@@ -10,7 +10,16 @@ const router = express.Router();
  */
 router.post('/insights', authMiddleware, async (req, res) => {
   try {
-    const userId = req.user.userId;
+    const userId = req.user.userId || req.user.id;
+    
+    if (!userId) {
+      console.error('❌ No user ID found in request');
+      return res.status(401).json({
+        success: false,
+        error: 'User not authenticated',
+        message: 'Please log in again'
+      });
+    }
     
     console.log('📊 Generating insights for user:', userId);
     
