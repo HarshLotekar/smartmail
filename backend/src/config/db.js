@@ -81,28 +81,54 @@ const initSchema = () => {
 const runMigrations = () => {
   console.log('📋 Checking for pending migrations...');
   
-  // Check if internal_date column exists
+  // Migration 1: Add missing columns to messages table
   db.all("PRAGMA table_info(messages)", (err, columns) => {
     if (err) {
       console.error('❌ Error checking messages table:', err.message);
       return;
     }
     
-    const hasInternalDate = columns.some(col => col.name === 'internal_date');
+    const columnNames = columns.map(col => col.name);
+    const missingColumns = [];
     
-    if (!hasInternalDate) {
-      console.log('➕ Running migration: Add internal_date column');
-      db.run('ALTER TABLE messages ADD COLUMN internal_date INTEGER', (err) => {
-        if (err) {
-          console.error('❌ Migration failed:', err.message);
-        } else {
-          console.log('✅ Migration completed: internal_date column added');
+    // Check for all required columns
+    if (!columnNames.includes('internal_date')) missingColumns.push(['internal_date', 'INTEGER']);
+    if (!columnNames.includes('to_name')) missingColumns.push(['to_name', 'TEXT']);
+    if (!columnNames.includes('is_deleted')) missingColumns.push(['is_deleted', 'BOOLEAN DEFAULT 0']);
+    if (!columnNames.includes('is_draft')) missingColumns.push(['is_draft', 'BOOLEAN DEFAULT 0']);
+    if (!columnNames.includes('is_sent')) missingColumns.push(['is_sent', 'BOOLEAN DEFAULT 0']);
+    if (!columnNames.includes('is_trash')) missingColumns.push(['is_trash', 'BOOLEAN DEFAULT 0']);
+    if (!columnNames.includes('is_spam')) missingColumns.push(['is_spam', 'BOOLEAN DEFAULT 0']);
+    if (!columnNames.includes('ai_priority')) missingColumns.push(['ai_priority', 'INTEGER DEFAULT 0']);
+    
+    if (missingColumns.length > 0) {
+      console.log(`➕ Adding ${missingColumns.length} missing columns to messages table...`);
+      
+      // Add columns one by one
+      const addColumn = (index) => {
+        if (index >= missingColumns.length) {
+          console.log('✅ All message columns added');
           fixNullInternalDates();
+          createUnsubscribesTable();
+          return;
         }
-      });
+        
+        const [columnName, columnType] = missingColumns[index];
+        db.run(`ALTER TABLE messages ADD COLUMN ${columnName} ${columnType}`, (err) => {
+          if (err) {
+            console.error(`❌ Error adding ${columnName}:`, err.message);
+          } else {
+            console.log(`✅ Added column: ${columnName}`);
+          }
+          addColumn(index + 1);
+        });
+      };
+      
+      addColumn(0);
     } else {
-      console.log('✅ internal_date column exists');
+      console.log('✅ All message columns exist');
       fixNullInternalDates();
+      createUnsubscribesTable();
     }
   });
 };
@@ -112,16 +138,39 @@ const fixNullInternalDates = () => {
   db.run(`UPDATE messages 
           SET internal_date = CAST((julianday(COALESCE(date, created_at)) - 2440587.5) * 86400000 AS INTEGER)
           WHERE internal_date IS NULL`, 
-    (err) => {
+    function(err) {
       if (err) {
         console.error('❌ Error fixing NULL internal_date:', err.message);
-      } else if (this && this.changes > 0) {
+      } else if (this.changes > 0) {
         console.log(`✅ Fixed ${this.changes} NULL internal_date values`);
-      } else {
-        console.log('✅ All migrations up to date');
       }
     }
   );
+};
+
+// Create unsubscribes table if it doesn't exist
+const createUnsubscribesTable = () => {
+  const sql = `
+    CREATE TABLE IF NOT EXISTS unsubscribes (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      email_address TEXT NOT NULL,
+      sender_name TEXT,
+      unsubscribe_method TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+      UNIQUE(user_id, email_address)
+    )
+  `;
+  
+  db.run(sql, (err) => {
+    if (err) {
+      console.error('❌ Error creating unsubscribes table:', err.message);
+    } else {
+      console.log('✅ Unsubscribes table ready');
+      console.log('✅ All migrations completed');
+    }
+  });
 };
 
 initSchema();
