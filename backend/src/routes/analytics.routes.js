@@ -103,11 +103,11 @@ function generateInsights(emails) {
     .slice(0, 5)
     .map(([sender, count]) => ({ sender, count }));
 
-  // Day distribution
+  // Day distribution (for most active day)
   const dayCounts = {};
   emails.forEach(e => {
     try {
-      const day = new Date(e.date).toLocaleDateString('en-US', { weekday: 'long' });
+      const day = new Date(e.date || e.internal_date || e.created_at).toLocaleDateString('en-US', { weekday: 'long' });
       dayCounts[day] = (dayCounts[day] || 0) + 1;
     } catch (err) {
       // Skip invalid dates
@@ -115,12 +115,36 @@ function generateInsights(emails) {
   });
   const mostActiveDay = Object.entries(dayCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || 'Unknown';
 
-  // Weekly activity (last 7 days)
-  const weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-  const weeklyActivity = weekDays.map(day => ({
-    day: day.substring(0, 3), // Shorten to Mon, Tue, etc.
-    count: dayCounts[day] || 0
-  }));
+  // Weekly activity (last 7 days) - show actual distribution by date
+  const last7Days = [];
+  const today = new Date();
+  for (let i = 6; i >= 0; i--) {
+    const date = new Date(today);
+    date.setDate(date.getDate() - i);
+    last7Days.push({
+      date: date,
+      day: date.toLocaleDateString('en-US', { weekday: 'short' }),
+      count: 0
+    });
+  }
+  
+  // Count emails for each of the last 7 days
+  emails.forEach(e => {
+    try {
+      const emailDate = new Date(e.date || e.internal_date || e.created_at);
+      const emailDay = emailDate.toDateString();
+      
+      last7Days.forEach(day => {
+        if (day.date.toDateString() === emailDay) {
+          day.count++;
+        }
+      });
+    } catch (err) {
+      // Skip invalid dates
+    }
+  });
+  
+  const weeklyActivity = last7Days.map(({ day, count }) => ({ day, count }));
 
   return {
     overview: {
