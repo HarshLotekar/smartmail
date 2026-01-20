@@ -81,7 +81,51 @@ const initSchema = () => {
 const runMigrations = () => {
   console.log('📋 Checking for pending migrations...');
   
-  // Migration 1: Add missing columns to messages table
+  // Migration 1: Add missing columns to users table
+  db.all("PRAGMA table_info(users)", (err, columns) => {
+    if (err) {
+      console.error('❌ Error checking users table:', err.message);
+      return;
+    }
+    
+    const columnNames = columns.map(col => col.name);
+    const missingUserColumns = [];
+    
+    // Check for required columns in users table
+    if (!columnNames.includes('gmail_history_id')) missingUserColumns.push(['gmail_history_id', 'TEXT']);
+    
+    if (missingUserColumns.length > 0) {
+      console.log(`➕ Adding ${missingUserColumns.length} missing columns to users table...`);
+      
+      const addUserColumn = (index) => {
+        if (index >= missingUserColumns.length) {
+          console.log('✅ All user columns added');
+          checkMessagesTable();
+          return;
+        }
+        
+        const [columnName, columnType] = missingUserColumns[index];
+        db.run(`ALTER TABLE users ADD COLUMN ${columnName} ${columnType}`, (err) => {
+          if (err) {
+            console.error(`❌ Error adding column ${columnName}:`, err.message);
+          } else {
+            console.log(`✅ Added column: ${columnName}`);
+          }
+          addUserColumn(index + 1);
+        });
+      };
+      
+      addUserColumn(0);
+    } else {
+      console.log('✅ All user columns exist');
+      checkMessagesTable();
+    }
+  });
+};
+
+// Check messages table columns
+const checkMessagesTable = () => {
+  // Migration 2: Add missing columns to messages table
   db.all("PRAGMA table_info(messages)", (err, columns) => {
     if (err) {
       console.error('❌ Error checking messages table:', err.message);
@@ -100,7 +144,6 @@ const runMigrations = () => {
     if (!columnNames.includes('cc_emails')) missingColumns.push(['cc_emails', 'TEXT']);
     if (!columnNames.includes('bcc_emails')) missingColumns.push(['bcc_emails', 'TEXT']);
     if (!columnNames.includes('ai_processed')) missingColumns.push(['ai_processed', 'BOOLEAN DEFAULT 0']);
-    if (!columnNames.includes('gmail_history_id')) missingColumns.push(['gmail_history_id', 'TEXT']);
     if (!columnNames.includes('is_deleted')) missingColumns.push(['is_deleted', 'BOOLEAN DEFAULT 0']);
     if (!columnNames.includes('is_sent')) missingColumns.push(['is_sent', 'BOOLEAN DEFAULT 0']);
     if (!columnNames.includes('is_draft')) missingColumns.push(['is_draft', 'BOOLEAN DEFAULT 0']);
