@@ -133,6 +133,7 @@ class GmailService {
       const message = response.data;
       const headers = this.parseHeaders(message.payload.headers);
       const body = this.parseMessageBody(message.payload);
+      const attachments = this.extractAttachments(message.payload);
 
       return {
         id: message.id,
@@ -145,7 +146,8 @@ class GmailService {
         date: headers.date,
         bodyText: body.text,
         bodyHtml: body.html,
-        hasAttachments: this.hasAttachments(message.payload),
+        hasAttachments: attachments.length > 0,
+        attachments: JSON.stringify(attachments),
         internalDate: new Date(parseInt(message.internalDate))
       };
     } catch (error) {
@@ -207,6 +209,35 @@ class GmailService {
       );
     }
     return false;
+  }
+
+  /**
+   * Extract attachment details from message payload
+   */
+  extractAttachments(payload) {
+    const attachments = [];
+    
+    const extractFromPart = (part) => {
+      if (part.filename && part.filename.length > 0 && part.body) {
+        attachments.push({
+          filename: part.filename,
+          mimeType: part.mimeType,
+          size: part.body.size || 0,
+          attachmentId: part.body.attachmentId
+        });
+      }
+      
+      // Recursively check nested parts
+      if (part.parts) {
+        part.parts.forEach(extractFromPart);
+      }
+    };
+    
+    if (payload.parts) {
+      payload.parts.forEach(extractFromPart);
+    }
+    
+    return attachments;
   }
 
   /**

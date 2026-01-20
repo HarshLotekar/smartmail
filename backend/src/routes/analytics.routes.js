@@ -10,7 +10,7 @@ const router = express.Router();
  */
 router.post('/insights', authMiddleware, async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user.userId;
     
     console.log('📊 Generating insights for user:', userId);
     
