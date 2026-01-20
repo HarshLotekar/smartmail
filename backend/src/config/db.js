@@ -254,46 +254,58 @@ const createAllMissingTables = () => {
     else console.log('✅ ai_processing_logs table ready');
   });
   
-  // Create email_decisions table with proper foreign key
-  db.run(`
-    CREATE TABLE IF NOT EXISTS email_decisions (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      email_id TEXT NOT NULL,
-      user_id INTEGER NOT NULL,
-      decision_required BOOLEAN NOT NULL DEFAULT 0,
-      decision_type TEXT NOT NULL,
-      decision_score REAL DEFAULT 0.0,
-      decision_reason TEXT,
-      status TEXT NOT NULL DEFAULT 'pending',
-      snoozed_until DATETIME,
-      detected_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
-      FOREIGN KEY (email_id) REFERENCES messages (gmail_id) ON DELETE CASCADE,
-      UNIQUE(email_id, user_id)
-    )
-  `, (err) => {
-    if (err) console.error('❌ Error creating email_decisions:', err.message);
-    else console.log('✅ email_decisions table ready');
+  // Drop and recreate email_decisions table to fix foreign key constraint
+  db.run(`DROP TABLE IF EXISTS email_decisions`, (err) => {
+    if (err) console.error('❌ Error dropping old email_decisions:', err.message);
+    else console.log('🔄 Dropped old email_decisions table');
+    
+    // Create email_decisions table with proper foreign key
+    db.run(`
+      CREATE TABLE email_decisions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        email_id TEXT NOT NULL,
+        user_id INTEGER NOT NULL,
+        decision_required BOOLEAN NOT NULL DEFAULT 0,
+        decision_type TEXT NOT NULL,
+        decision_score REAL DEFAULT 0.0,
+        decision_reason TEXT,
+        status TEXT NOT NULL DEFAULT 'pending',
+        snoozed_until DATETIME,
+        detected_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+        FOREIGN KEY (email_id) REFERENCES messages (gmail_id) ON DELETE CASCADE,
+        UNIQUE(email_id, user_id)
+      )
+    `, (err) => {
+      if (err) console.error('❌ Error creating email_decisions:', err.message);
+      else console.log('✅ email_decisions table recreated with proper foreign keys');
+    });
   });
   
-  // Create followups table
-  db.run(`
-    CREATE TABLE IF NOT EXISTS followups (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      user_id INTEGER NOT NULL,
-      email_id TEXT NOT NULL,
-      followup_date DATETIME NOT NULL,
-      notes TEXT,
-      status TEXT DEFAULT 'pending',
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
-      UNIQUE(user_id, email_id)
-    )
-  `, (err) => {
-    if (err) console.error('❌ Error creating followups:', err.message);
-    else console.log('✅ followups table ready');
+  // Drop and recreate followups table to ensure consistency
+  db.run(`DROP TABLE IF EXISTS followups`, (err) => {
+    if (err) console.error('❌ Error dropping old followups:', err.message);
+    else console.log('🔄 Dropped old followups table');
+    
+    // Create followups table with proper foreign keys
+    db.run(`
+      CREATE TABLE followups (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        email_id TEXT NOT NULL,
+        followup_date DATETIME NOT NULL,
+        notes TEXT,
+        status TEXT DEFAULT 'pending',
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+        UNIQUE(user_id, email_id)
+      )
+    `, (err) => {
+      if (err) console.error('❌ Error creating followups:', err.message);
+      else console.log('✅ followups table recreated with proper foreign keys');
+    });
   });
   
   // Create schema_version table
