@@ -76,7 +76,16 @@ const Inbox = () => {
       
     } catch (err) {
       console.error('Failed to fetch emails:', err)
-      setError(err.message || 'Failed to fetch emails')
+      // Only show error if it's an actual API error (not just empty response)
+      if (err.response?.status === 401) {
+        // Auth error - redirect to login
+        console.log('Authentication expired, redirecting to login...')
+        window.location.href = '/login'
+      } else if (err.response?.status >= 500) {
+        // Server error - show message
+        setError('Server error. Please try again later.')
+      }
+      // For other errors (network, etc), fail silently and show empty state
     } finally {
       setLoading(false)
     }

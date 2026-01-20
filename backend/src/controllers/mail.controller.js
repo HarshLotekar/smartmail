@@ -310,8 +310,9 @@ async function getMessages(req, res) {
       error: error.toString()
     });
     
-    // Return empty result instead of 500 to allow UI to load
-    console.log('⚠️  Returning empty messages array due to error (migrations may be pending)');
+    // Return empty result silently for normal database operations
+    // Don't expose internal errors to frontend
+    console.log('⚠️  Returning empty messages array due to error');
     res.json({
       success: true,
       messages: [],
@@ -326,8 +327,7 @@ async function getMessages(req, res) {
         starred_messages: 0,
         archived_messages: 0,
         ai_processed_messages: 0
-      },
-      error: 'Database migration pending - please refresh in a moment'
+      }
     });
   }
 }
