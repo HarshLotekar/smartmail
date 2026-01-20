@@ -64,6 +64,7 @@ const initSchema = () => {
             console.error('❌ Error initializing schema:', err.message);
           } else {
             console.log('✅ Database schema initialized successfully');
+            runMigrations();
           }
         });
       } else {
@@ -71,6 +72,35 @@ const initSchema = () => {
       }
     } else {
       console.log('✅ Database schema already exists');
+      runMigrations();
+    }
+  });
+};
+
+// Run pending migrations
+const runMigrations = () => {
+  console.log('📋 Checking for pending migrations...');
+  
+  // Check if internal_date column exists
+  db.all("PRAGMA table_info(messages)", (err, columns) => {
+    if (err) {
+      console.error('❌ Error checking messages table:', err.message);
+      return;
+    }
+    
+    const hasInternalDate = columns.some(col => col.name === 'internal_date');
+    
+    if (!hasInternalDate) {
+      console.log('➕ Running migration: Add internal_date column');
+      db.run('ALTER TABLE messages ADD COLUMN internal_date INTEGER', (err) => {
+        if (err) {
+          console.error('❌ Migration failed:', err.message);
+        } else {
+          console.log('✅ Migration completed: internal_date column added');
+        }
+      });
+    } else {
+      console.log('✅ All migrations up to date');
     }
   });
 };
