@@ -93,6 +93,7 @@ const runMigrations = () => {
     
     // Check for required columns in users table
     if (!columnNames.includes('gmail_history_id')) missingUserColumns.push(['gmail_history_id', 'TEXT']);
+    if (!columnNames.includes('last_sync_at')) missingUserColumns.push(['last_sync_at', 'DATETIME']);
     
     if (missingUserColumns.length > 0) {
       console.log(`➕ Adding ${missingUserColumns.length} missing columns to users table...`);
