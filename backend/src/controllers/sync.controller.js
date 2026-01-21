@@ -186,57 +186,113 @@ async function incrementalSync(req, res) {
  */
 async function initialSync(req, res, gmail, userId) {
   try {
-    console.log('🔄 [SYNC] Initial sync - fetching message list (IDs only)');
+    console.log('🔄 [SYNC] Initial sync - fetching messages with full details');
     
     const maxMessages = 500; // Fetch up to 500 messages for initial sync
     let allMessages = [];
     let pageToken = null;
     
-    // Fetch message IDs only (fields parameter reduces response size)
-    do {
-      const response = await gmail.users.messages.list({
-        userId: 'me',
-        maxResults: maxMessages,
-        pageToken: pageToken,
-        fields: 'messages(id,threadId,labelIds),nextPageToken,resultSizeEstimate'
-      });
-      
-      if (response.data.messages) {
-        allMessages = allMessages.concat(response.data.messages);
-      }
-      
-      pageToken = response.data.nextPageToken;
-      
-      // Stop after one page for initial sync
-      break;
-      
-    } while (pageToken && allMessages.length < maxMessages);
+    // Fetch message IDs first
+    const response = await gmail.users.messages.list({
+      userId: 'me',
+      maxResults: maxMessages,
+      fields: 'messages(id,threadId,labelIds),nextPageToken,resultSizeEstimate'
+    });
     
-    console.log(`📬 [SYNC] Found ${allMessages.length} messages to track`);
+    if (response.data.messages) {
+      allMessages = response.data.messages;
+    }
     
-    // Save message placeholders (NO FULL FETCH)
+    console.log(`📬 [SYNC] Found ${allMessages.length} messages, fetching full details...`);
+    
+    // Fetch full details for each message
     let savedCount = 0;
     
     for (const msg of allMessages) {
-      const existing = await messageModel.findMessageByGmailId(msg.id);
-      if (!existing) {
+      try {
+        const existing = await messageModel.findMessageByGmailId(msg.id);
+        if (existing) {
+          continue; // Skip if already exists
+        }
+        
+        // Fetch full message details
+        const fullMessage = await gmail.users.messages.get({
+          userId: 'me',
+          id: msg.id,
+          format: 'full'
+        });
+        
+        const message = fullMessage.data;
+        const headers = message.payload.headers || [];
+        
+        // Extract headers
+        const getHeader = (name) => {
+          const header = headers.find(h => h.name.toLowerCase() === name.toLowerCase());
+          return header ? header.value : '';
+        };
+        
+        const subject = getHeader('Subject') || '(No Subject)';
+        const from = getHeader('From') || '';
+        const to = getHeader('To') || '';
+        const date = getHeader('Date') || new Date().toISOString();
+        
+        // Parse from header to extract name and email
+        const fromMatch = from.match(/(.+)?\s*<(.+)>/) || [];
+        const fromName = fromMatch[1]?.trim() || from.split('@')[0] || '';
+        const fromEmail = fromMatch[2] || from || '';
+        
+        // Extract body
+        const getBody = (payload) => {
+          let text = '';
+          let html = '';
+          
+          if (payload.body?.data) {
+            const content = Buffer.from(payload.body.data, 'base64').toString();
+            if (payload.mimeType === 'text/plain') text = content;
+            else if (payload.mimeType === 'text/html') html = content;
+          }
+          
+          if (payload.parts) {
+            payload.parts.forEach(part => {
+              const result = getBody(part);
+              text += result.text;
+              html += result.html;
+            });
+          }
+          
+          return { text, html };
+        };
+        
+        const body = getBody(message.payload);
+        
         await messageModel.createMessage({
           userId: userId,
           gmailId: msg.id,
           threadId: msg.threadId,
-          subject: '(Not loaded yet)',
-          fromEmail: '',
-          fromName: '',
-          toEmail: '',
-          toName: '',
-          bodyText: '',
-          bodyHtml: '',
-          snippet: '',
-          date: new Date().toISOString(),
-          isRead: false,
-          labels: JSON.stringify(msg.labelIds || [])
+          subject: subject,
+          fromEmail: fromEmail,
+          fromName: fromName,
+          toEmail: to,
+          bodyText: body.text,
+          bodyHtml: body.html,
+          snippet: message.snippet || '',
+          date: date,
+          internalDate: message.internalDate,
+          isRead: !message.labelIds?.includes('UNREAD'),
+          isStarred: message.labelIds?.includes('STARRED'),
+          labels: JSON.stringify(message.labelIds || [])
         });
+        
         savedCount++;
+        
+        // Progress log every 50 messages
+        if (savedCount % 50 === 0) {
+          console.log(`⚙️ [SYNC] Progress: ${savedCount}/${allMessages.length} messages saved`);
+        }
+        
+      } catch (error) {
+        console.error(`❌ Failed to fetch message ${msg.id}:`, error.message);
+        continue;
       }
     }
     

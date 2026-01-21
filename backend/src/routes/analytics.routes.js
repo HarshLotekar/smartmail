@@ -107,7 +107,22 @@ function generateInsights(emails) {
   const dayCounts = {};
   emails.forEach(e => {
     try {
-      const day = new Date(e.date || e.internal_date || e.created_at).toLocaleDateString('en-US', { weekday: 'long' });
+      // Try multiple date fields
+      let emailDate;
+      if (e.internal_date) {
+        // internal_date is milliseconds since epoch
+        emailDate = new Date(parseInt(e.internal_date));
+      } else if (e.date) {
+        emailDate = new Date(e.date);
+      } else if (e.created_at) {
+        emailDate = new Date(e.created_at);
+      } else {
+        return; // Skip if no valid date
+      }
+      
+      if (isNaN(emailDate.getTime())) return; // Skip invalid dates
+      
+      const day = emailDate.toLocaleDateString('en-US', { weekday: 'long' });
       dayCounts[day] = (dayCounts[day] || 0) + 1;
     } catch (err) {
       // Skip invalid dates
@@ -131,7 +146,20 @@ function generateInsights(emails) {
   // Count emails for each of the last 7 days
   emails.forEach(e => {
     try {
-      const emailDate = new Date(e.date || e.internal_date || e.created_at);
+      // Try multiple date fields
+      let emailDate;
+      if (e.internal_date) {
+        emailDate = new Date(parseInt(e.internal_date));
+      } else if (e.date) {
+        emailDate = new Date(e.date);
+      } else if (e.created_at) {
+        emailDate = new Date(e.created_at);
+      } else {
+        return;
+      }
+      
+      if (isNaN(emailDate.getTime())) return;
+      
       const emailDay = emailDate.toDateString();
       
       last7Days.forEach(day => {
