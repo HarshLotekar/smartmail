@@ -109,9 +109,9 @@ async function callGemini(prompt, systemMessage = null) {
       }
     };
 
-    // Use v1beta API and gemini-1.5-flash model
+    // Use v1beta API and gemini-1.5-pro model
     const response = await axios.post(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${GEMINI_API_KEY}`,
       payload,
       {
         timeout: 30000,
@@ -356,7 +356,7 @@ Return ONLY valid JSON in this exact format:
           confidence: parsed.confidence || 0.8,
           reason: parsed.reason || 'AI categorization',
           provider: AI_PROVIDER,
-          model: AI_PROVIDER === 'ollama' ? OLLAMA_MODEL : 'gemini-1.5-flash'
+          model: AI_PROVIDER === 'ollama' ? OLLAMA_MODEL : 'gemini-1.5-pro'
         };
       }
     } catch (parseError) {
@@ -388,7 +388,7 @@ Return ONLY valid JSON in this exact format:
       confidence: 0.6,
       reason: 'Extracted from AI text response',
       provider: AI_PROVIDER,
-      model: AI_PROVIDER === 'ollama' ? OLLAMA_MODEL : 'gemini-1.5-flash'
+      model: AI_PROVIDER === 'ollama' ? OLLAMA_MODEL : 'gemini-1.5-pro'
     };
   } catch (error) {
     console.error('[AI] Email categorization failed:', error.message);

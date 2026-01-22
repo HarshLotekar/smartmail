@@ -83,7 +83,7 @@ export async function suggestReplyService(subject, content) {
   if ((process.env.AI_MODE || '').toLowerCase() === "gemini") {
     try {
       const response = await axios.post(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${process.env.GEMINI_API_KEY}`,
         { contents: [{ parts: [{ text }] }] },
         { headers: { 'Content-Type': 'application/json' }, timeout: parseInt(process.env.AI_TIMEOUT_MS || '30000', 10) }
       );
@@ -129,7 +129,7 @@ export async function draftEmailService(subject = '', content = '', instructions
     }
     if (aiMode === 'gemini') {
       const response = await axios.post(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${process.env.GEMINI_API_KEY}`,
         { contents: [{ parts: [{ text }] }] },
         { headers: { 'Content-Type': 'application/json' }, timeout: parseInt(process.env.AI_TIMEOUT_MS || '30000', 10) }
       );
@@ -801,7 +801,7 @@ ${cleanedEmailText}`;
     if (!apiKey) throw new Error('Gemini API key not configured');
     
     const { data } = await axios.post(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${apiKey}`,
       { 
         contents: [{ parts: [{ text: prompt }] }],
         generationConfig: {
@@ -885,7 +885,7 @@ ${cleanedEmailText}`;
     if (!apiKey) throw new Error('Gemini API key not configured');
     
     const { data } = await axios.post(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${apiKey}`,
       { 
         contents: [{ parts: [{ text: prompt }] }],
         generationConfig: {
@@ -1105,7 +1105,7 @@ Output format (MUST be valid JSON):
       if (!apiKey) throw new Error('Gemini API key not configured');
       
       const { data } = await axios.post(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${apiKey}`,
         { 
           contents: [{ parts: [{ text: prompt }] }],
           generationConfig: {
